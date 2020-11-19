@@ -7,23 +7,25 @@ using Xunit;
 namespace WebApiSample.XTest
 {
     [Collection("Integration Tests")]
-    public class DefaultControllerTests
+    public class BasicControllerTests
     {
-        private readonly WebApplicationFactory<Startup> _factory;
+        private readonly WebApplicationFactory<Startup> factory;
 
-        public DefaultControllerTests(WebApplicationFactory<Startup> factory)
+        public BasicControllerTests(WebApplicationFactory<Startup> factory)
         {
-            _factory = factory;
+            this.factory = factory;
         }
 
-        [Fact]
-        public async Task GetRoot_ReturnsSuccessAndStatusUp()
+        [Theory]
+        [InlineData("/", "Up")]
+        [InlineData("/health", "Healthy")]
+        public async Task GetPath_ReturnsSuccessAndExpectedStatus(string path, string expectedStatus)
         {
             // Arrange
-            var client = _factory.CreateClient();
+            var client = factory.CreateClient();
 
             // Act
-            var response = await client.GetAsync("/");
+            var response = await client.GetAsync(path);
 
             // Assert
             response.EnsureSuccessStatusCode();
@@ -31,7 +33,7 @@ namespace WebApiSample.XTest
             var responseObject = JsonSerializer.Deserialize<ResponseType>(
                 await response.Content.ReadAsStringAsync(),
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-            Assert.Equal("Up", responseObject?.Status);
+            Assert.Equal(expectedStatus, responseObject?.Status);
         }
 
         private class ResponseType
