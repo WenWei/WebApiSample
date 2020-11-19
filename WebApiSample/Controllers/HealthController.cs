@@ -11,5 +11,10 @@ namespace WebApiSample.Controllers
     [ApiController]
     public class HealthController : ControllerBase
     {
+        [HttpGet]
+        public string Get()
+        {
+            return "ok";
+        }
     }
 }
